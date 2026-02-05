@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>متجر بلال بريميم 🛒</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-color: #4338ca;
+            --accent-color: #f59e0b;
+            --bg-color: #f1f5f9;
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: var(--bg-color);
+            margin: 0; padding: 0;
+            overflow-x: hidden;
+        }
+
+        /* رأس الصفحة */
+        header {
+            background: linear-gradient(135deg, #1e1b4b 0%, #4338ca 100%);
+            color: white;
+            padding: 50px 20px;
+            text-align: center;
+            position: relative;
+        }
+
+        .cart-icon-container {
+            position: absolute;
+            top: 20px;
+            left: 30px;
+            font-size: 1.8rem;
+            cursor: pointer;
+            z-index: 10;
+        }
+
+        #cart-count {
+            background: var(--accent-color);
+            color: white;
+            font-size: 0.8rem;
+            padding: 2px 7px;
+            border-radius: 50%;
+            position: absolute;
+            top: -5px;
+            right: -10px;
+        }
+
+        /* المنتجات */
+        .container { max-width: 1100px; margin: 40px auto; padding: 20px; }
+        .products-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; }
+
+        .product-card {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+            transition: 0.3s;
+            position: relative;
+            display: flex; flex-direction: column;
+        }
+
+        .product-card:hover { transform: translateY(-10px); box-shadow: 0 15px 30px rgba(0,0,0,0.1); }
+
+        .image-container { background: #fff; height: 220px; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        .product-card img { max-width: 100%; max-height: 100%; object-fit: contain; transition: 0.4s; }
+        .product-card:hover img { transform: scale(1.1); }
+
+        .product-info { padding: 20px; text-align: center; }
+        .price { color: var(--primary-color); font-size: 1.4rem; font-weight: bold; margin: 10px 0; }
+        
+        .btn-add {
+            background-color: var(--primary-color);
+            color: white; border: none; padding: 12px;
+            border-radius: 12px; width: 100%; font-family: 'Cairo';
+            font-weight: bold; cursor: pointer; transition: 0.3s;
+        }
+        .btn-add:active { transform: scale(0.95); }
+
+        .badge {
+            position: absolute; top: 15px; right: 15px;
+            background: var(--accent-color); color: white;
+            padding: 4px 12px; border-radius: 8px; font-size: 0.8rem;
+        }
+
+        /* السلة الجانبية */
+        .sidebar {
+            position: fixed; top: 0; left: -400px; /* مخفية لليسار */
+            width: 320px; height: 100%;
+            background: white; z-index: 1001;
+            transition: 0.4s ease-in-out;
+            padding: 25px; display: flex; flex-direction: column;
+            box-shadow: 5px 0 15px rgba(0,0,0,0.1);
+        }
+
+        .sidebar.active { left: 0; }
+
+        .sidebar-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #eee; padding-bottom: 15px; }
+        .close-btn { font-size: 2rem; border: none; background: none; cursor: pointer; color: #666; }
+
+        #overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5); display: none; z-index: 1000;
+        }
+        #overlay.active { display: block; }
+
+        .sidebar-footer { margin-top: auto; border-top: 2px solid #eee; padding-top: 20px; }
+        .checkout-btn { width: 100%; background: #27ae60; color: white; border: none; padding: 15px; border-radius: 10px; font-weight: bold; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <div id="cart-sidebar" class="sidebar">
+        <div class="sidebar-header">
+            <h2>سلة المشتريات</h2>
+            <button onclick="toggleCart()" class="close-btn">&times;</button>
+        </div>
+        <div id="cart-items-list" style="margin-top:20px;">
+            <p style="text-align:center; color:#666;">السلة فارغة حالياً</p>
+        </div>
+        <div class="sidebar-footer">
+            <h3>الإجمالي: <span id="total-price">0</span> $</h3>
+            <button class="checkout-btn">إتمام الشراء</button>
+        </div>
+    </div>
+    <div id="overlay" onclick="toggleCart()"></div>
+
+    <header>
+        <div class="cart-icon-container" onclick="toggleCart()">
+            <i class="fas fa-shopping-cart"></i>
+            <span id="cart-count">0</span>
+        </div>
+        <h1><i class="fas fa-microchip"></i> متجر بلال التقني</h1>
+        <p>الأجهزة الأصلية بأفضل جودة وصورة</p>
+    </header>
+
+    <div class="container">
+        <div class="products-grid">
+            <div class="product-card">
+                <div class="badge">جديد</div>
+                <div class="image-container"><img src="https://pngimg.com/d/macbook_PNG65.png" alt="MacBook"></div>
+                <div class="product-info">
+                    <h3>MacBook Pro M3</h3>
+                    <p class="price">1999 $</p>
+                    <button class="btn-add">أضف للسلة</button>
+                </div>
+            </div>
+
+            <div class="product-card">
+                <div class="image-container"><img src="https://pngimg.com/d/iphone_14_PNG1.png" alt="iPhone"></div>
+                <div class="product-info">
+                    <h3>iPhone 15 Pro</h3>
+                    <p class="price">999 $</p>
+                    <button class="btn-add">أضف للسلة</button>
+                </div>
+            </div>
+
+            <div class="product-card">
+                <div class="image-container"><img src="https://pngimg.com/d/watches_PNG9899.png" alt="Watch"></div>
+                <div class="product-info">
+                    <h3>Apple Watch Ultra</h3>
+                    <p class="price">799 $</p>
+                    <button class="btn-add">أضف للسلة</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    let count = 0;
+    let total = 0;
+    const cartCountElement = document.getElementById('cart-count');
+    const cartItemsList = document.getElementById('cart-items-list');
+    const totalPriceElement = document.getElementById('total-price');
+    const addButtons = document.querySelectorAll('.btn-add');
+
+    addButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            // 1. نجيب بيانات المنتج من الكارت اللي دوست عليه
+            const productCard = button.parentElement.parentElement;
+            const productName = productCard.querySelector('h3').innerText;
+            const productPrice = parseInt(productCard.querySelector('.price').innerText.replace('$', '').replace(',', ''));
+
+            // 2. لو دي أول مرة نضيف، نمسح كلمة "السلة فارغة"
+            if (count === 0) {
+                cartItemsList.innerHTML = '';
+            }
+
+            // 3. نحدث العداد والإجمالي
+            count++;
+            total += productPrice;
+
+            cartCountElement.innerText = count;
+            totalPriceElement.innerText = total.toLocaleString(); // عشان يظهر بفاصلة زي 1,000
+
+            // 4. نضيف المنتج فعلياً لشكل السلة
+            const itemHTML = `
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; border-bottom:1px solid #eee; padding-bottom:10px;">
+                    <div>
+                        <h4 style="margin:0; font-size:0.9rem;">${productName}</h4>
+                        <span style="color:#4338ca; font-weight:bold;">${productPrice} $</span>
+                    </div>
+                    <i class="fas fa-trash" style="color:#ef4444; cursor:pointer;" onclick="this.parentElement.remove();"></i>
+                </div>
+            `;
+            cartItemsList.innerHTML += itemHTML;
+
+            // 5. حركة شياكة: نفتح السلة أوتوماتيك أول ما يضيف
+            if(!document.getElementById('cart-sidebar').classList.contains('active')) {
+                toggleCart();
+            }
+        });
+    });
+
+    function toggleCart() {
+        document.getElementById('cart-sidebar').classList.toggle('active');
+        document.getElementById('overlay').classList.toggle('active');
+        // دالة إتمام الشراء
+document.querySelector('.checkout-btn').addEventListener('click', () => {
+    if (count === 0) {
+        alert("سلتك فاضية اشتري لك آيفون طيب! 😂");
+    } else {
+        alert(`🎉 تهانينا! تم تسجيل طلبك بنجاح.\n💰 الإجمالي المطلوب: ${total} $\nشكراً لتسوقك من متجر بلال التقني!`);
+        
+        // تنظيف السلة بعد الشراء
+        count = 0;
+        total = 0;
+        cartCountElement.innerText = count;
+        totalPriceElement.innerText = total;
+        cartItemsList.innerHTML = '<p style="text-align:center; color:#666;">السلة فارغة حالياً</p>';
+        toggleCart();
+    }
+});
+    }
+</script>
+</body>
+</html>
